@@ -29,7 +29,7 @@ namespace BinPacking
             List<int[]> population = new List<int[]>();
 
             int popSize = 0;
-            while(popSize < 50)
+            while(popSize < 20)
             {
                 List<int> keys = exampleKeys.ToList();
                 int[] representation = new int[keys.Count];
@@ -38,12 +38,18 @@ namespace BinPacking
                     keys = keys.OrderBy(x => Guid.NewGuid()).ToList();
                     int itemId = keys[0];
                     Random random = new Random();
-                    Thread.Sleep(20);
+                    Thread.Sleep(15);
                     representation[itemId-1] = (random.Next() % NumberOfBins) + 1;
                     keys.Remove(itemId);
                 }
-                popSize++;
-                population.Add(representation);
+                
+
+                if(validateRepresentation(representation,exampleProblem))
+                {
+                    popSize++;
+                    population.Add(representation);
+                    Console.WriteLine($"Added element {popSize} to population");
+                }
             }
 
             foreach(var element in population)
@@ -54,6 +60,32 @@ namespace BinPacking
                 }
                 Console.WriteLine();
             }
+        }
+
+        static bool validateRepresentation(int[] representation, Dictionary<int,int> problem)
+        {
+            int[] actualBinWeights = initializeBinArray(NumberOfBins);
+
+            for(int i=0;i<representation.Length;i++)
+            {
+                int itemWeight = problem[i+1];
+                actualBinWeights[representation[i] - 1] += itemWeight;
+                if (actualBinWeights[representation[i] - 1] > MaxBinSize)
+                    return false;
+            }
+            
+            return true;
+
+        }
+
+        static int[] initializeBinArray(int numberOfBins)
+        {
+            int[] actualBinWeights = new int[numberOfBins];
+            for (int i = 0; i < numberOfBins; i++)
+            {
+                actualBinWeights[i] = 0;
+            }
+            return actualBinWeights;
         }
     }
 }
