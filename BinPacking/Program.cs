@@ -23,9 +23,6 @@ namespace BinPacking
 
             List<int> exampleKeys = exampleProblem.Keys.ToList();
             
-
-           
-
             List<int[]> population = new List<int[]>();
 
             int popSize = 0;
@@ -52,13 +49,29 @@ namespace BinPacking
                 }
             }
 
-            foreach(var element in population)
+            while(true)
             {
-                foreach(var item in element)
+                population = population.OrderBy(x => Guid.NewGuid()).ToList();
+                int[] popElement = (int[])population.ElementAt(0).Clone();
+                popElement = mutateSolution(popElement);
+                if(validateRepresentation(popElement,exampleProblem))
                 {
-                    Console.Write(item + " ");
+                    Console.WriteLine("Mutated");
+                    Console.Write("From:");
+                    foreach (var item in population.ElementAt(0))
+                        Console.Write(item + " ");
+
+                    Console.WriteLine();
+
+                    Console.Write("To  :");
+                    foreach (var item in popElement)
+                        Console.Write(item + " ");
+
+                    population.RemoveAt(0);
+                    population.Add(popElement);
+                    break;
+
                 }
-                Console.WriteLine();
             }
         }
 
@@ -86,6 +99,24 @@ namespace BinPacking
                 actualBinWeights[i] = 0;
             }
             return actualBinWeights;
+        }
+
+        static int[] mutateSolution(int [] representation)
+        {
+            Random random = new Random();
+            int index = random.Next() % representation.Length;
+            Thread.Sleep(10);
+            int newValue = (random.Next() % NumberOfBins) + 1;
+            if(representation[index] == newValue)
+            {
+                representation[index] = ((newValue + 1) % NumberOfBins)+1 ;
+            }
+            else
+            {
+                representation[index] = newValue;
+            }
+            
+            return representation;
         }
     }
 }
