@@ -11,6 +11,7 @@ namespace BinPacking
     {
         static int NumberOfBins = 4;
         static int MaxBinSize = 30;
+        static int CrossOverPoint = 0;
         static void Main(string[] args)
         {
             Dictionary<int, int> exampleProblem = new Dictionary<int, int>() {
@@ -26,7 +27,7 @@ namespace BinPacking
             List<int[]> population = new List<int[]>();
 
             int popSize = 0;
-            while(popSize < 20)
+            while(popSize < 10)
             {
                 List<int> keys = exampleKeys.ToList();
                 int[] representation = new int[keys.Count];
@@ -49,6 +50,7 @@ namespace BinPacking
                 }
             }
 
+            //Mutation
             while(true)
             {
                 population = population.OrderBy(x => Guid.NewGuid()).ToList();
@@ -71,6 +73,39 @@ namespace BinPacking
                     population.Add(popElement);
                     break;
 
+                }
+            }
+
+            while(true)
+            {
+                population = population.OrderBy(x => Guid.NewGuid()).ToList();
+                int[] firstElement = (int[])population.ElementAt(0).Clone();
+                int[] secondElement = (int[])population.ElementAt(1).Clone();
+
+                int[] createdNewElement = crossover(firstElement, secondElement);
+
+                if(validateRepresentation(createdNewElement,exampleProblem))
+                {
+                    Console.WriteLine();
+                    
+                    Console.Write("First Element :");
+                    foreach (var item in firstElement)
+                        Console.Write(item + " ");
+
+                    Console.WriteLine();
+                    Console.Write("Second Element:");
+                    foreach (var item in secondElement)
+                        Console.Write(item + " ");
+
+                    Console.WriteLine();
+                    Console.Write("Crossover     :");
+                    foreach (var item in createdNewElement)
+                        Console.Write(item + " ");
+
+                    Console.WriteLine();
+                    Console.WriteLine("Point: " + CrossOverPoint);
+                    population.Add(createdNewElement);
+                    break;
                 }
             }
         }
@@ -117,6 +152,30 @@ namespace BinPacking
             }
             
             return representation;
+        }
+
+
+        //1 2 3 3 4
+        //2 3 1 1 2
+
+        //1 2 1 1 2
+        static int[] crossover(int[] firstElement, int[] secondElement)
+        {
+            int[] newRepresentation = new int[firstElement.Length];
+            Random random = new Random();
+            int index = random.Next() % (firstElement.Length - 1);
+            if (index == 0)
+                index += 1;
+
+            CrossOverPoint = index;
+
+            for (int i = 0; i < index; i++)
+                newRepresentation[i] = firstElement[i];
+
+            for (int i = index; i < secondElement.Length; i++)
+                newRepresentation[i] = secondElement[i];
+
+            return newRepresentation;
         }
     }
 }
